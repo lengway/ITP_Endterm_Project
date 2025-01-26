@@ -2,7 +2,7 @@ import os
 import shutil
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QSlider, QWidget, QLabel,
-    QMessageBox, QFileDialog
+    QMessageBox, QFileDialog, QStyleFactory
 )
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
@@ -29,8 +29,10 @@ class MusicPlayer(QMainWindow):
     def setup_ui(self):
         self.setWindowTitle("Music Player")
         self.setGeometry(200, 200, 720, 480)
+        self.setWindowIcon(QIcon("resources/icons/icon.svg"))
+        self.setStyle(QStyleFactory.create("Fusion"))
 
-        # Main widget and layout
+        # Основное окно и лейаут
         main_widget = QWidget()
         self.main_layout = QVBoxLayout()
         main_widget.setStyleSheet("background-color: #505050;")
@@ -51,6 +53,9 @@ class MusicPlayer(QMainWindow):
 
         music_directory = os.path.join(os.getcwd(), "music")
 
+        if not os.path.exists(music_directory):
+            os.makedirs(music_directory)
+
         for file in os.listdir(music_directory):
             if file.endswith(".mp3"):
                 self.playlist.append(os.path.join(music_directory, file))
@@ -62,7 +67,7 @@ class MusicPlayer(QMainWindow):
         self.track_name_widget.setAlignment(Qt.AlignCenter)
         self.track_name_widget.setStyleSheet(
             """
-            color: white;
+            color: gray;
             background-color: #303030;
             font: bold 14px;
             border-radius: 6px;
@@ -178,10 +183,28 @@ class MusicPlayer(QMainWindow):
                 mixer.music.pause()
                 self.is_playing = False
                 self.play_button.setIcon(QIcon("resources/icons/play.svg"))
+                self.track_name_widget.setStyleSheet(
+                    """
+                    color: gray;
+                    background-color: #303030;
+                    font: bold 14px;
+                    border-radius: 6px;
+                    padding: 3px;
+                    """
+                )
             else:
                 mixer.music.unpause()
                 self.is_playing = True
                 self.play_button.setIcon(QIcon("resources/icons/pause.svg"))
+                self.track_name_widget.setStyleSheet(
+                    """
+                    color: white;
+                    background-color: #303030;
+                    font: bold 14px;
+                    border-radius: 6px;
+                    padding: 3px;
+                    """
+                )
 
     def stop_song_button_clicked(self):
         mixer.music.stop()
@@ -224,6 +247,14 @@ class MusicPlayer(QMainWindow):
         self.is_playing = True
         self.play_button.setIcon(QIcon("resources/icons/pause.svg"))
         self.track_name_widget.setText(os.path.basename(self.current_song))
+        self.track_name_widget.setStyleSheet("""
+            color: white;
+            background-color: #303030;
+            font: bold 14px;
+            border-radius: 6px;
+            padding: 3px;
+            """
+        )
 
     def reset_player_state(self):
         self.current_song = None
